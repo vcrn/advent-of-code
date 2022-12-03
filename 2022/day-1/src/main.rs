@@ -4,8 +4,8 @@ fn main() {
     let input = fs::read_to_string("input/input.txt").expect("Couldn't read input file!");
     let top1_calories = calculate_calories(input.clone(), 1);
     let top3_calories = calculate_calories(input.clone(), 3);
-    println!("Calory Elf with most total calories: {:?}", top1_calories);
-    println!("Elf with most total calories: {:?}", top3_calories);
+    println!("Calories of elf with most calories: {:?}", top1_calories);
+    println!("Calories of top 3 elves with most calories: {:?}", top3_calories);
 }
 
 fn calculate_calories(input: String, top: usize) -> u32 {
