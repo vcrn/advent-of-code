@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 fn main() {
     let path = "input/input".to_string();
     let start_packet = detect_start(path.clone(), 4);
@@ -13,11 +15,8 @@ fn detect_start(path: String, length: usize) -> usize {
     let mut i = length;
 
     for window in windows {
-        let mut map = HashMap::new();
-        for c in window {
-            map.insert(c, "v");
-        }
-        if map.keys().len() == length {
+        let set: HashSet<char> = HashSet::from_iter(window.iter().cloned());
+        if set.len() == length {
             return i;
         }
         i += 1;
