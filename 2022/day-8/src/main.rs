@@ -1,4 +1,4 @@
-use std::{collections::btree_map::Range, ops::RangeInclusive};
+use std::ops::RangeInclusive;
 
 fn main() {
     let path = "input/input";
@@ -47,7 +47,7 @@ fn find_visible_trees(path: &str) -> (u32, u32) {
     (visible_trees, scenic_score_max)
 }
 
-fn is_visible(trees: &Vec<Vec<u32>>, r: usize, rows: usize, c: usize, cols: usize) -> bool {
+fn is_visible(trees: &[Vec<u32>], r: usize, rows: usize, c: usize, cols: usize) -> bool {
     let tree = trees[r][c];
     let down = is_visible_ver(trees, tree, c, (r + 1)..=rows);
     let up = is_visible_ver(trees, tree, c, 0..=(r - 1));
@@ -57,7 +57,7 @@ fn is_visible(trees: &Vec<Vec<u32>>, r: usize, rows: usize, c: usize, cols: usiz
     down || up || left || right
 }
 
-fn calc_scenic_score(trees: &Vec<Vec<u32>>, r: usize, rows: usize, c: usize, cols: usize) -> u32 {
+fn calc_scenic_score(trees: &[Vec<u32>], r: usize, rows: usize, c: usize, cols: usize) -> u32 {
     let mut down = 0;
     let mut left = 0;
     let mut right = 0;
@@ -66,7 +66,7 @@ fn calc_scenic_score(trees: &Vec<Vec<u32>>, r: usize, rows: usize, c: usize, col
     let tree = trees[r][c];
     //println!("For {r}x{c}, height {tree}:");
     if r != rows {
-        for y in (r + 1)..=rows {
+        for y in r + 1..=rows {
             down += 1;
             //println!("y is {y}");
             if tree <= trees[y][c] {
@@ -112,12 +112,7 @@ fn calc_scenic_score(trees: &Vec<Vec<u32>>, r: usize, rows: usize, c: usize, col
 
     up * down * right * left
 }
-fn is_visible_ver(
-    trees: &Vec<Vec<u32>>,
-    tree: u32,
-    c: usize,
-    range: RangeInclusive<usize>,
-) -> bool {
+fn is_visible_ver(trees: &[Vec<u32>], tree: u32, c: usize, range: RangeInclusive<usize>) -> bool {
     for y in range {
         //println!("x is {x}");
         if tree <= trees[y][c] {
@@ -127,10 +122,10 @@ fn is_visible_ver(
           //  return true;
           //}
     }
-    return true;
+    true
 }
 fn calc_scenic_hor<T: IntoIterator<Item = usize>>(
-    trees: &Vec<Vec<u32>>,
+    trees: &[Vec<u32>],
     tree: u32,
     r: usize,
     col_range: T,
@@ -146,7 +141,7 @@ fn calc_scenic_hor<T: IntoIterator<Item = usize>>(
 }
 
 fn calc_scenic_ver<T: IntoIterator<Item = usize>>(
-    trees: &Vec<Vec<u32>>,
+    trees: &[Vec<u32>],
     tree: u32,
     c: usize,
     row_range: T,
@@ -163,12 +158,7 @@ fn calc_scenic_ver<T: IntoIterator<Item = usize>>(
     true
 }
 //Range<usize>
-fn is_visible_hor(
-    trees: &Vec<Vec<u32>>,
-    tree: u32,
-    r: usize,
-    range: RangeInclusive<usize>,
-) -> bool {
+fn is_visible_hor(trees: &[Vec<u32>], tree: u32, r: usize, range: RangeInclusive<usize>) -> bool {
     for x in range {
         //println!("x is {x}");
         if tree <= trees[r][x] {
@@ -178,7 +168,7 @@ fn is_visible_hor(
           //  return true;
           //}
     }
-    return true;
+    true
 }
 
 #[test]
