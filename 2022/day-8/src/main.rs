@@ -112,6 +112,8 @@ fn calc_scenic_score(trees: &[Vec<u32>], r: usize, rows: usize, c: usize, cols: 
 
     up * down * right * left
 }
+
+// TODO: Implement function below
 fn is_visible_ver(trees: &[Vec<u32>], tree: u32, c: usize, range: RangeInclusive<usize>) -> bool {
     for y in range {
         //println!("x is {x}");
@@ -124,6 +126,8 @@ fn is_visible_ver(trees: &[Vec<u32>], tree: u32, c: usize, range: RangeInclusive
     }
     true
 }
+
+// TODO: Implement function below
 fn calc_scenic_hor<T: IntoIterator<Item = usize>>(
     trees: &[Vec<u32>],
     tree: u32,
