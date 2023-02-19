@@ -1,7 +1,7 @@
 use std::ops::RangeInclusive;
 
 fn main() {
-    let path = "input/input_test1";
+    let path = "input/input";
     let (visible_trees, scenic_score_max) = find_visible_trees(path);
     println!("Number of visible trees are {visible_trees}, and the highest scenic score is {scenic_score_max}");
 }
@@ -24,10 +24,8 @@ fn find_visible_trees(path: &str) -> (u32, u32) {
     let cols = trees_vecs[0].len() - 1;
     let rows = trees_vecs.len() - 1;
 
-    //println!("Rows: {rows}, Cols: {cols}");
-    for c in 0..=cols {
-        for r in 0..=rows {
-            //println!("r: {r}, c: {c}");
+    (0..=cols).for_each(|c| {
+        (0..=rows).for_each(|r| {
             let scenic_score = calc_scenic_score_total(&trees_vecs, r, rows, c, cols);
             if scenic_score > scenic_score_max {
                 scenic_score_max = scenic_score;
@@ -38,12 +36,10 @@ fn find_visible_trees(path: &str) -> (u32, u32) {
                 || (r == rows)
                 || is_visible(&trees_vecs, r, rows, c, cols)
             {
-                // Tree {r}x{c} is on the perimiter or further in and visible
                 visible_trees += 1;
             }
-        }
-    }
-
+        })
+    });
     (visible_trees, scenic_score_max)
 }
 
@@ -153,26 +149,12 @@ fn test_find_visible_trees_test_input() {
     let (visible_trees, scenic_score_max) = find_visible_trees(path);
     assert_eq!(21, visible_trees);
     assert_eq!(8, scenic_score_max);
-    // Should be visible:
-    // 1x1
-    // 1x2
-    // 2x1 missing
-    // 2x3 missing
-    // 3x2
 }
+
 #[test]
 fn test_find_visible_trees_real_input() {
     let path = "input/input";
     let (visible_trees, scenic_score_max) = find_visible_trees(path);
     assert_eq!(1785, visible_trees);
     assert_eq!(345168, scenic_score_max);
-    // Should be visible:
-    // 1x1
-    // 1x2
-    // 2x1 missing
-    // 2x3 missing
-    // 3x2
 }
-
-// Part 1: 1785
-// Part 2: 345168
