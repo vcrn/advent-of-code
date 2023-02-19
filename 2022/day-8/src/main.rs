@@ -28,7 +28,7 @@ fn find_visible_trees(path: &str) -> (u32, u32) {
     for c in 0..=cols {
         for r in 0..=rows {
             //println!("r: {r}, c: {c}");
-            let scenic_score = calc_scenic_score(&trees_vecs, r, rows, c, cols);
+            let scenic_score = calc_scenic_score_total(&trees_vecs, r, rows, c, cols);
             if scenic_score > scenic_score_max {
                 scenic_score_max = scenic_score;
             }
@@ -58,113 +58,46 @@ fn is_visible(trees: &[Vec<u32>], r: usize, rows: usize, c: usize, cols: usize) 
     down || up || left || right
 }
 
-fn calc_scenic_score(trees: &[Vec<u32>], r: usize, rows: usize, c: usize, cols: usize) -> u32 {
+fn calc_scenic_score_total(
+    trees: &[Vec<u32>],
+    r: usize,
+    rows: usize,
+    c: usize,
+    cols: usize,
+) -> u32 {
     let mut down = 0;
     let mut left = 0;
     let mut right = 0;
     let mut up = 0;
 
     let tree = trees[r][c];
-    //println!("trees is {trees:?}");
-    //println!("For {r}x{c}, height {tree}:");
+
     if r != rows {
         let trees_down = r + 1..=rows;
-        //#[allow(clippy::needless_range_loop)]
-        //trees.iter().take(rows + 1).skip(r + 1)
-        //(1..=10).take_while(|&x| x <= 5).for_each(|x| dummy(x))
-        //down = (r + 1..=rows)
-        //    .take_while(|&y| tree <= trees[y][c])
-        //    .for_each(|y| y)
-        //    .count();
-        //let it = trees.iter().take(rows + 1).skip(r + 1);
-        //down = it.take_while(|&y| tree <= trees[*y][c]).count();
-        down = trees_down
-            .clone()
-            .take_while(|y| tree > trees[*y][c])
-            .count();
-        if down != trees_down.count() {
-            down += 1;
-        }
+        down = calc_scenic_ver(trees, tree, c, trees_down);
     }
-    //if r != rows {
-    //    #[allow(clippy::needless_range_loop)]
-    //    for y in r + 1..=rows {
-    //        down += 1;
-    //        //println!("y is {y}");
-    //        if tree <= trees[y][c] {
-    //            //println!("Blocked at {y}x{c}");
-    //            break;
-    //        }
-    //    }
-    //}
-    //println!("down is {down}");
 
     if r != 0 {
         let trees_up = (0..=(r - 1)).rev();
-        up = trees_up.clone().take_while(|y| tree > trees[*y][c]).count();
-        //for y in (0..=(r - 1)).rev() {
-        //    up += 1;
-        //    //println!("y is {y}");
-        //    if tree <= trees[y][c] {
-        //        //println!("Blocked at {y}x{c}");
-        //        break;
-        //    }
-        //}
-        if up != trees_up.count() {
-            up += 1;
-        }
+        up = calc_scenic_ver(trees, tree, c, trees_up);
     }
-    //if up != (0..=(r - 1)).count() {
-    //    up += 1;
-    //}
 
     if c != cols {
         let trees_right = c + 1..=cols;
-        right = trees_right
-            .clone()
-            .take_while(|x| tree > trees[r][*x])
-            .count();
-        if right != trees_right.count() {
-            right += 1;
-        }
-        //for x in (c + 1)..=cols {
-        //    right += 1;
-        //    //println!("x is {x}");
-        //    if tree <= trees[r][x] {
-        //        //println!("Blocked at {r}x{x}");
-        //        break;
-        //    }
-        //}
+        right = calc_scenic_hor(trees, tree, r, trees_right);
     }
 
     if c != 0 {
-        //for x in trees_left {
-        //    left += 1;
-        //    //println!("x is {x}");
-        //    if tree <= trees[r][x] {
-        //        //println!("Blocked at {r}x{x}");
-        //        break;
-        //    }
-        //}
         let trees_left = (0..=(c - 1)).rev();
-        left = trees_left
-            .clone()
-            .take_while(|x| tree > trees[r][*x])
-            .count();
-        if left != trees_left.count() {
-            left += 1;
-        }
+        left = calc_scenic_hor(trees, tree, r, trees_left);
     }
-    //println!("Tree {r}x{c}: {up} {down} {right} {left}");
 
-    up as u32 * down as u32 * right as u32 * left as u32
+    (up * down * right * left) as u32
 }
 
 fn is_visible_ver(trees: &[Vec<u32>], tree: u32, c: usize, range: RangeInclusive<usize>) -> bool {
     for y in range {
-        //println!("x is {x}");
         if tree <= trees[y][c] {
-            //println!("Blocked at {r}x{x}");
             return false;
         }
     }
@@ -173,49 +106,45 @@ fn is_visible_ver(trees: &[Vec<u32>], tree: u32, c: usize, range: RangeInclusive
 
 fn is_visible_hor(trees: &[Vec<u32>], tree: u32, r: usize, range: RangeInclusive<usize>) -> bool {
     for x in range {
-        //println!("x is {x}");
         if tree <= trees[r][x] {
-            //println!("Blocked at {r}x{x}");
             return false;
         }
     }
     true
 }
 
-// TODO: Implement function below
-fn _calc_scenic_hor<T: IntoIterator<Item = usize>>(
+fn calc_scenic_hor<T: Iterator<Item = usize> + Clone>(
     trees: &[Vec<u32>],
     tree: u32,
     r: usize,
     col_range: T,
 ) -> usize {
-    let mut score = 0;
-    for x in col_range {
+    let mut score = col_range
+        .clone()
+        .take_while(|x| tree > trees[r][*x])
+        .count();
+    // Makes sure to include the tree blocking the sigth, unless edge can be seen from tree
+    if score != col_range.count() {
         score += 1;
-        if tree <= trees[r][x] {
-            break;
-        }
     }
     score
 }
 
-// TODO: Implement function below
-fn _calc_scenic_ver<T: IntoIterator<Item = usize>>(
+fn calc_scenic_ver<T: Iterator<Item = usize> + Clone>(
     trees: &[Vec<u32>],
     tree: u32,
     c: usize,
     row_range: T,
-) -> bool {
-    for y in row_range {
-        //println!("x is {x}");
-        if tree <= trees[y][c] {
-            //println!("Blocked at {r}x{x}");
-            return false;
-        } //else if x == 0 {
-          //  return true;
-          //}
+) -> usize {
+    let mut score = row_range
+        .clone()
+        .take_while(|y| tree > trees[*y][c])
+        .count();
+    // Makes sure to include the tree blocking the sigth, unless edge can be seen from tree
+    if score != row_range.count() {
+        score += 1;
     }
-    true
+    score
 }
 
 #[test]
