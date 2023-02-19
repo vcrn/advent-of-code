@@ -6,17 +6,21 @@ fn main() {
     println!("Number of visible trees are {visible_trees}, and the highest scenic score is {scenic_score_max}");
 }
 
-fn find_visible_trees(path: &str) -> (u32, u32) {
-    let input = std::fs::read_to_string(path).expect("Couldn't read file");
+fn read_file_content(path: &str) -> Vec<Vec<u32>> {
+    let input_as_string = std::fs::read_to_string(path).expect("Couldn't read file");
 
-    let trees_vecs = input
+    input_as_string
         .split('\n')
         .map(|x| {
             x.chars()
                 .map(|y| y.to_digit(10).unwrap())
                 .collect::<Vec<u32>>()
         })
-        .collect::<Vec<Vec<u32>>>();
+        .collect::<Vec<Vec<u32>>>()
+}
+
+fn find_visible_trees(path: &str) -> (u32, u32) {
+    let trees_vecs = read_file_content(path);
 
     let mut visible_trees = 0;
     let mut scenic_score_max = 0;
@@ -26,10 +30,6 @@ fn find_visible_trees(path: &str) -> (u32, u32) {
 
     (0..=cols).for_each(|c| {
         (0..=rows).for_each(|r| {
-            let scenic_score = calc_scenic_score_total(&trees_vecs, r, rows, c, cols);
-            if scenic_score > scenic_score_max {
-                scenic_score_max = scenic_score;
-            }
             if (c == 0)
                 || (c == cols)
                 || (r == 0)
@@ -37,6 +37,11 @@ fn find_visible_trees(path: &str) -> (u32, u32) {
                 || is_visible(&trees_vecs, r, rows, c, cols)
             {
                 visible_trees += 1;
+            }
+
+            let scenic_score = calc_scenic_score_total(&trees_vecs, r, rows, c, cols);
+            if scenic_score > scenic_score_max {
+                scenic_score_max = scenic_score;
             }
         })
     });
@@ -92,21 +97,11 @@ fn calc_scenic_score_total(
 }
 
 fn is_visible_ver(trees: &[Vec<u32>], tree: u32, c: usize, range: RangeInclusive<usize>) -> bool {
-    for y in range {
-        if tree <= trees[y][c] {
-            return false;
-        }
-    }
-    true
+    range.clone().take_while(|y| tree > trees[*y][c]).count() == range.count()
 }
 
 fn is_visible_hor(trees: &[Vec<u32>], tree: u32, r: usize, range: RangeInclusive<usize>) -> bool {
-    for x in range {
-        if tree <= trees[r][x] {
-            return false;
-        }
-    }
-    true
+    range.clone().take_while(|x| tree > trees[r][*x]).count() == range.count()
 }
 
 fn calc_scenic_hor<T: Iterator<Item = usize> + Clone>(
