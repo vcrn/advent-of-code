@@ -59,6 +59,14 @@ fn is_visible(trees: &[Vec<u32>], r: usize, rows: usize, c: usize, cols: usize) 
     down || up || left || right
 }
 
+fn is_visible_ver(trees: &[Vec<u32>], tree: u32, c: usize, range: RangeInclusive<usize>) -> bool {
+    range.clone().take_while(|y| tree > trees[*y][c]).count() == range.count()
+}
+
+fn is_visible_hor(trees: &[Vec<u32>], tree: u32, r: usize, range: RangeInclusive<usize>) -> bool {
+    range.clone().take_while(|x| tree > trees[r][*x]).count() == range.count()
+}
+
 fn calc_scenic_score_total(
     trees: &[Vec<u32>],
     r: usize,
@@ -96,20 +104,13 @@ fn calc_scenic_score_total(
     (up * down * right * left) as u32
 }
 
-fn is_visible_ver(trees: &[Vec<u32>], tree: u32, c: usize, range: RangeInclusive<usize>) -> bool {
-    range.clone().take_while(|y| tree > trees[*y][c]).count() == range.count()
-}
-
-fn is_visible_hor(trees: &[Vec<u32>], tree: u32, r: usize, range: RangeInclusive<usize>) -> bool {
-    range.clone().take_while(|x| tree > trees[r][*x]).count() == range.count()
-}
-
 fn calc_scenic_hor<T: Iterator<Item = usize> + Clone>(
     trees: &[Vec<u32>],
     tree: u32,
     r: usize,
     col_range: T,
 ) -> usize {
+    //let mut score = is_visible_hor(trees, tree, r, col_range);
     let mut score = col_range
         .clone()
         .take_while(|x| tree > trees[r][*x])
