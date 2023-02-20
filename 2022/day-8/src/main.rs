@@ -1,3 +1,4 @@
+use std::cmp::min;
 use std::ops::RangeInclusive;
 
 fn main() {
@@ -111,15 +112,12 @@ fn calc_scenic_hor<T: Iterator<Item = usize> + Clone>(
     col_range: T,
 ) -> usize {
     //let mut score = is_visible_hor(trees, tree, r, col_range);
-    let mut score = col_range
+    let score = col_range
         .clone()
         .take_while(|x| tree > trees[r][*x])
         .count();
     // Makes sure to include the tree blocking the sigth, unless edge can be seen from tree
-    if score != col_range.count() {
-        score += 1;
-    }
-    score
+    min(score + 1, col_range.count())
 }
 
 fn calc_scenic_ver<T: Iterator<Item = usize> + Clone>(
@@ -128,15 +126,12 @@ fn calc_scenic_ver<T: Iterator<Item = usize> + Clone>(
     c: usize,
     row_range: T,
 ) -> usize {
-    let mut score = row_range
+    let score = row_range
         .clone()
         .take_while(|y| tree > trees[*y][c])
         .count();
     // Makes sure to include the tree blocking the sigth, unless edge can be seen from tree
-    if score != row_range.count() {
-        score += 1;
-    }
-    score
+    min(score + 1, row_range.count())
 }
 
 #[test]
