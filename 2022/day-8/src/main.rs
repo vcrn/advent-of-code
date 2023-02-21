@@ -111,7 +111,6 @@ fn calc_scenic_hor<T: Iterator<Item = usize> + Clone>(
     r: usize,
     col_range: T,
 ) -> usize {
-    //let mut score = is_visible_hor(trees, tree, r, col_range);
     let score = col_range
         .clone()
         .take_while(|x| tree > trees[r][*x])
