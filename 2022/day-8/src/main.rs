@@ -49,6 +49,7 @@ fn find_visible_trees(path: &str) -> (u32, u32) {
     (visible_trees, scenic_score_max)
 }
 
+/// Asses whether tree of position `r`x`c` is visible from edge.
 /// rows = trees_vecs.len() - 1
 fn is_visible(trees: &[Vec<u32>], r: usize, rows: usize, c: usize, cols: usize) -> bool {
     let tree = trees[r][c];
@@ -75,34 +76,41 @@ fn calc_scenic_score_total(
     c: usize,
     cols: usize,
 ) -> u32 {
-    let mut down = 0;
-    let mut left = 0;
-    let mut right = 0;
-    let mut up = 0;
-
     let tree = trees[r][c];
 
-    if r != rows {
-        let trees_down = r + 1..=rows;
-        down = calc_scenic_ver(trees, tree, c, trees_down);
-    }
+    let down_score = match r != rows {
+        true => {
+            let trees_down = r + 1..=rows;
+            calc_scenic_ver(trees, tree, c, trees_down)
+        }
+        false => 0,
+    };
 
-    if r != 0 {
-        let trees_up = (0..=(r - 1)).rev();
-        up = calc_scenic_ver(trees, tree, c, trees_up);
-    }
+    let up_score = match r != 0 {
+        true => {
+            let trees_up = (0..=(r - 1)).rev();
+            calc_scenic_ver(trees, tree, c, trees_up)
+        }
+        false => 0,
+    };
 
-    if c != cols {
-        let trees_right = c + 1..=cols;
-        right = calc_scenic_hor(trees, tree, r, trees_right);
-    }
+    let right_score = match c != cols {
+        true => {
+            let trees_right = c + 1..=cols;
+            calc_scenic_hor(trees, tree, r, trees_right)
+        }
+        false => 0,
+    };
 
-    if c != 0 {
-        let trees_left = (0..=(c - 1)).rev();
-        left = calc_scenic_hor(trees, tree, r, trees_left);
-    }
+    let left_score = match c != 0 {
+        true => {
+            let trees_left = (0..=(c - 1)).rev();
+            calc_scenic_hor(trees, tree, r, trees_left)
+        }
+        false => 0,
+    };
 
-    (up * down * right * left) as u32
+    (up_score * down_score * right_score * left_score) as u32
 }
 
 fn calc_scenic_hor<T: Iterator<Item = usize> + Clone>(
