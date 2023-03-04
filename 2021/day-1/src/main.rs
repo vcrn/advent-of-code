@@ -8,8 +8,8 @@ fn compute(path: &str) -> (usize, usize) {
     // Read data
     let data_string = std::fs::read_to_string(path).expect("Could not read file");
     let data: Vec<usize> = data_string
+        .trim() // Editors have a tendency to add trailing \n
         .split('\n')
-        .filter(|x| x != &"") // Removes empty elements, which can be created by trailing \n
         .map(|x| x.parse::<usize>().expect("Can't map"))
         .collect();
 
